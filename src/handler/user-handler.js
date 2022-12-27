@@ -65,4 +65,52 @@ const register = async (request, h) => {
   return response;
 };
 
-module.exports = { register };
+const login = async (request, h) => {
+  const { username, password } = request.payload;
+  let response = '';
+
+  try {
+    const user = await request.mongo.db.collection('users').findOne({ username });
+
+    if (user) {
+      const hashedPassword = user.password;
+
+      if (await bcrypt.compare(password, hashedPassword)) {
+        response = h.response({
+          code: 200,
+          status: 'OK',
+          data: {
+            username,
+            accessToken: generateJwt(jwt, username),
+          },
+        });
+
+        response.code(200);
+
+        return response;
+      }
+    }
+
+    response = h.response({
+      code: 401,
+      status: 'Unauthorized',
+      message: 'Username or password is incorrect',
+    });
+
+    response.code(401);
+
+    return response;
+  } catch (e) {
+    response = h.response({
+      code: 400,
+      status: 'Bad Request',
+      message: 'error',
+    });
+
+    response.code(400);
+  }
+
+  return response;
+};
+
+module.exports = { register, login };
