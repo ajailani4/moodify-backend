@@ -2,6 +2,7 @@ const Hapi = require('@hapi/hapi');
 const mongoDB = require('hapi-mongodb');
 const dotenv = require('dotenv');
 const hapiAuthJwt = require('hapi-auth-jwt2');
+const routes = require('./route');
 const { validateJwt } = require('./util/jwt-util');
 
 const init = async () => {
@@ -42,6 +43,7 @@ const init = async () => {
     },
   );
 
+  await server.route(routes);
   await server.start();
 
   console.log(`Server running on ${server.info.uri}`);
