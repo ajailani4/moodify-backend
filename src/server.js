@@ -1,6 +1,8 @@
 const Hapi = require('@hapi/hapi');
 const mongoDB = require('hapi-mongodb');
 const dotenv = require('dotenv');
+const hapiAuthJwt = require('hapi-auth-jwt2');
+const { validateJwt } = require('./util/jwt-util');
 
 const init = async () => {
   dotenv.config();
@@ -26,6 +28,19 @@ const init = async () => {
       decorate: true,
     },
   });
+
+  // Configure JWT
+  await server.register(hapiAuthJwt);
+
+  server.auth.strategy(
+    'jwt',
+    'jwt',
+    {
+      key: process.env.JWT_SECRET,
+      validate: validateJwt,
+      verifyOptions: { ignoreExpiration: true },
+    },
+  );
 
   await server.start();
 
