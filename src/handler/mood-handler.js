@@ -87,4 +87,53 @@ const getMoods = async (request, h) => {
   return response;
 };
 
-module.exports = { addMood, getMoods };
+const getMoodDetail = async (request, h) => {
+  const { id } = request.params;
+  const { ObjectID } = request.mongo;
+  let response = '';
+
+  try {
+    const mood = await request.mongo.db.collection('moods').findOne({ _id: ObjectID(id) });
+
+    if (!mood) {
+      response = h.response({
+        code: 404,
+        status: 'Not Found',
+        message: 'Mood is not found',
+      });
+
+      response.code(404);
+
+      return response;
+    }
+
+    response = h.response({
+      code: 200,
+      status: 'OK',
+      data: {
+        id: mood._id,
+        mood: mood.mood,
+        activityName: mood.activity_name,
+        note: mood.note,
+        date: mood.date,
+        time: mood.time,
+      },
+    });
+
+    response.code(200);
+
+    return response;
+  } catch (e) {
+    response = h.response({
+      code: 400,
+      status: 'Bad Request',
+      message: 'error',
+    });
+
+    response.code(400);
+  }
+
+  return response;
+};
+
+module.exports = { addMood, getMoods, getMoodDetail };

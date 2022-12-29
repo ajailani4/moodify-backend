@@ -1,7 +1,10 @@
+const Joi = require('@hapi/joi');
+Joi.objectId = require('joi-objectid')(Joi);
+
 const prefix = '/api/v1';
 
 const { register, login } = require('./handler/user-handler');
-const { addMood, getMoods } = require('./handler/mood-handler');
+const { addMood, getMoods, getMoodDetail } = require('./handler/mood-handler');
 
 const routes = [
   // Register
@@ -31,6 +34,21 @@ const routes = [
     path: `${prefix}/moods`,
     options: { auth: 'jwt' },
     handler: getMoods,
+  },
+
+  // Get Mood Detail
+  {
+    method: 'GET',
+    path: `${prefix}/moods/{id}`,
+    options: {
+      auth: 'jwt',
+      validate: {
+        params: Joi.object({
+          id: Joi.objectId(),
+        }),
+      },
+    },
+    handler: getMoodDetail,
   },
 ];
 
