@@ -1,3 +1,37 @@
+const addAndUpdateMoodToDataset = async (db, username, mood, activityName) => {
+  try {
+    const moodDatasetItem = await db.collection('moods_dataset').findOne(
+      {
+        username,
+        activity_name: activityName,
+      },
+    );
+
+    if (!moodDatasetItem) {
+      await db.collection('moods_dataset')
+        .insertOne({
+          username,
+          mood,
+          activity_name: activityName,
+        });
+    } else {
+      await db.collection('moods_dataset')
+        .updateOne(
+          { _id: moodDatasetItem._id },
+          {
+            $set: {
+              username,
+              mood,
+              activity_name: activityName,
+            },
+          },
+        );
+    }
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 const addMood = async (request, h) => {
   const {
     mood,
@@ -19,6 +53,8 @@ const addMood = async (request, h) => {
         date,
         time,
       });
+
+    await addAndUpdateMoodToDataset(request.mongo.db, username, mood, activityName);
 
     response = h.response({
       code: 201,
