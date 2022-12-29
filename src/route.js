@@ -4,7 +4,12 @@ Joi.objectId = require('joi-objectid')(Joi);
 const prefix = '/api/v1';
 
 const { register, login } = require('./handler/user-handler');
-const { addMood, getMoods, getMoodDetail } = require('./handler/mood-handler');
+const {
+  addMood,
+  getMoods,
+  getMoodDetail,
+  editMood,
+} = require('./handler/mood-handler');
 
 const routes = [
   // Register
@@ -49,6 +54,20 @@ const routes = [
       },
     },
     handler: getMoodDetail,
+  },
+  // Edit Mood
+  {
+    method: 'PUT',
+    path: `${prefix}/moods/{id}`,
+    options: {
+      auth: 'jwt',
+      validate: {
+        params: Joi.object({
+          id: Joi.objectId(),
+        }),
+      },
+    },
+    handler: editMood,
   },
 ];
 
