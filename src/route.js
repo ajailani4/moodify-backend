@@ -1,7 +1,7 @@
 const prefix = '/api/v1';
 
 const { register, login } = require('./handler/user-handler');
-const { addMood } = require('./handler/mood-handler');
+const { addMood, getMoods } = require('./handler/mood-handler');
 
 const routes = [
   // Register
@@ -24,6 +24,13 @@ const routes = [
     path: `${prefix}/moods`,
     options: { auth: 'jwt' },
     handler: addMood,
+  },
+  // Get Moods
+  {
+    method: 'GET',
+    path: `${prefix}/moods`,
+    options: { auth: 'jwt' },
+    handler: getMoods,
   },
 ];
 
