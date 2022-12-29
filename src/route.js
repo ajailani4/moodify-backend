@@ -9,6 +9,7 @@ const {
   getMoods,
   getMoodDetail,
   editMood,
+  deleteMood,
 } = require('./handler/mood-handler');
 
 const routes = [
@@ -68,6 +69,20 @@ const routes = [
       },
     },
     handler: editMood,
+  },
+  // Delete Mood
+  {
+    method: 'DELETE',
+    path: `${prefix}/moods/{id}`,
+    options: {
+      auth: 'jwt',
+      validate: {
+        params: Joi.object({
+          id: Joi.objectId(),
+        }),
+      },
+    },
+    handler: deleteMood,
   },
 ];
 
