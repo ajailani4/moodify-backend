@@ -55,6 +55,7 @@ const getMoods = async (request, h) => {
 
     const moods = await request.mongo.db.collection('moods')
       .find({ username })
+      .sort({ date: -1 })
       .skip((page - 1) * size)
       .limit(size)
       .toArray();
