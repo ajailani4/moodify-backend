@@ -2,7 +2,7 @@ const validateJwt = async (decoded, request, h) => {
   let isValid = false;
 
   const user = await request.mongo.db.collection('users')
-    .findOne({ usernamne: decoded.username });
+    .findOne({ username: decoded.username });
 
   if (user) {
     isValid = true;
