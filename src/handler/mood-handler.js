@@ -207,9 +207,54 @@ const editMood = async (request, h) => {
   return response;
 };
 
+const deleteMood = async (request, h) => {
+  const { id } = request.params;
+  const { ObjectID } = request.mongo;
+  let response = '';
+
+  try {
+    const mood = await request.mongo.db.collection('moods').findOne({ _id: ObjectID(id) });
+
+    if (!mood) {
+      response = h.response({
+        code: 404,
+        status: 'Not Found',
+        message: 'Mood is not found',
+      });
+
+      response.code(404);
+
+      return response;
+    }
+
+    await request.mongo.db.collection('moods').deleteOne({ _id: ObjectID(id) });
+
+    response = h.response({
+      code: 200,
+      status: 'OK',
+      message: 'Mood has been deleted',
+    });
+
+    response.code(200);
+
+    return response;
+  } catch (e) {
+    response = h.response({
+      code: 400,
+      status: 'Bad Request',
+      message: 'error',
+    });
+
+    response.code(400);
+  }
+
+  return response;
+};
+
 module.exports = {
   addMood,
   getMoods,
   getMoodDetail,
   editMood,
+  deleteMood,
 };
