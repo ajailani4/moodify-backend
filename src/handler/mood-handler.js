@@ -7,7 +7,6 @@ const addMood = async (request, h) => {
     time,
   } = request.payload;
   const { username } = request.auth.credentials;
-
   let response = '';
 
   try {
@@ -46,18 +45,27 @@ const addMood = async (request, h) => {
 const getMoods = async (request, h) => {
   const { username } = request.auth.credentials;
   let { page, size } = request.query;
-
+  const { month, year } = request.query;
   let response = '';
+  let moods = '';
 
   try {
     page = Number(page) || 1;
     size = Number(size) || 10;
 
-    const moods = await request.mongo.db.collection('moods')
+    moods = await request.mongo.db.collection('moods')
       .find({ username })
+      .sort({ date: -1 })
       .skip((page - 1) * size)
       .limit(size)
       .toArray();
+
+    if (month && year) {
+      moods = moods.filter((mood) => {
+        const date = new Date(mood.date);
+        return date.getMonth() === Number(month) - 1 && date.getFullYear() === Number(year);
+      });
+    }
 
     response = h.response({
       code: 200,
