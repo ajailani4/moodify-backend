@@ -11,6 +11,7 @@ const {
   editMood,
   deleteMood,
 } = require('./handler/mood-handler');
+const { getActivities } = require('./handler/activity-handler');
 
 const routes = [
   // Register
@@ -83,6 +84,13 @@ const routes = [
       },
     },
     handler: deleteMood,
+  },
+  // Get Activities
+  {
+    method: 'GET',
+    path: `${prefix}/activities`,
+    options: { auth: 'jwt' },
+    handler: getActivities,
   },
 ];
 
