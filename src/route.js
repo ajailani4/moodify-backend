@@ -12,6 +12,7 @@ const {
   deleteMood,
 } = require('./handler/mood-handler');
 const { getActivities } = require('./handler/activity-handler');
+const { getStatistic } = require('./handler/statistic-handler');
 
 const routes = [
   // Register
@@ -91,6 +92,13 @@ const routes = [
     path: `${prefix}/activities`,
     options: { auth: 'jwt' },
     handler: getActivities,
+  },
+  // Get Statistic
+  {
+    method: 'GET',
+    path: `${prefix}/statistics`,
+    options: { auth: 'jwt' },
+    handler: getStatistic,
   },
 ];
 
