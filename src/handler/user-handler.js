@@ -113,4 +113,37 @@ const login = async (request, h) => {
   return response;
 };
 
-module.exports = { register, login };
+const getProfile = async (request, h) => {
+  const { username } = request.auth.credentials;
+  let response = '';
+
+  try {
+    const user = await request.mongo.db.collection('users').findOne({ username });
+
+    response = h.response({
+      code: 200,
+      status: 'OK',
+      data: {
+        name: user.name,
+        email: user.email,
+        username: user.username,
+      },
+    });
+
+    response.code(200);
+
+    return response;
+  } catch (e) {
+    response = h.response({
+      code: 400,
+      status: 'Bad Request',
+      message: 'error',
+    });
+
+    response.code(400);
+  }
+
+  return response;
+};
+
+module.exports = { register, login, getProfile };

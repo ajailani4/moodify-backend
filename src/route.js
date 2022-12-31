@@ -3,7 +3,7 @@ Joi.objectId = require('joi-objectid')(Joi);
 
 const prefix = '/api/v1';
 
-const { register, login } = require('./handler/user-handler');
+const { register, login, getProfile } = require('./handler/user-handler');
 const {
   addMood,
   getMoods,
@@ -99,6 +99,13 @@ const routes = [
     path: `${prefix}/statistics`,
     options: { auth: 'jwt' },
     handler: getStatistic,
+  },
+  // Get Profile
+  {
+    method: 'GET',
+    path: `${prefix}/profile`,
+    options: { auth: 'jwt' },
+    handler: getProfile,
   },
 ];
 
