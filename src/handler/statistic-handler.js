@@ -10,10 +10,10 @@ const getStatistic = async (request, h) => {
       .find({ username })
       .toArray();
 
-    if (type === StatisticType.MoodPercentage) {
-      const moodCount = moods.length;
+    const moodCount = moods.length;
 
-      if (moodCount > 0) {
+    if (moodCount > 0) {
+      if (type === StatisticType.MoodPercentage) {
         const excellentMoodCount = moods.filter((mood) => mood.mood === 5).length;
         const goodMoodCount = moods.filter((mood) => mood.mood === 4).length;
         const okayMoodCount = moods.filter((mood) => mood.mood === 3).length;
@@ -35,18 +35,43 @@ const getStatistic = async (request, h) => {
         response.code(200);
 
         return response;
+      } if (type === StatisticType.FrequentActivities) {
+        const moodsDatasetItems = await request.mongo.db.collection('moods_dataset')
+          .find({ username })
+          .toArray();
+
+        const activities = moodsDatasetItems.map(
+          (moodDatasetItem) => moodDatasetItem.activity_name,
+        );
+
+        const eachActivitiesCount = activities.map((activity) => ({
+          activity,
+          count: moods.filter((mood) => mood.activity_name === activity).length,
+        })).sort(
+          (a, b) => b.count - a.count,
+        );
+
+        response = h.response({
+          code: 200,
+          status: 'OK',
+          data: eachActivitiesCount,
+        });
+
+        response.code(200);
+
+        return response;
       }
-
-      response = h.response({
-        code: 404,
-        status: 'Not Found',
-        message: 'No data',
-      });
-
-      response.code(404);
-
-      return response;
     }
+
+    response = h.response({
+      code: 404,
+      status: 'Not Found',
+      message: 'No data',
+    });
+
+    response.code(404);
+
+    return response;
   } catch (e) {
     response = h.response({
       code: 400,

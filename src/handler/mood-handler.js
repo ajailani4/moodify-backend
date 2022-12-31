@@ -1,13 +1,13 @@
 const addAndUpdateMoodToDataset = async (db, username, mood, activityName) => {
   try {
-    const moodDatasetItem = await db.collection('moods_dataset').findOne(
+    const moodsDatasetItem = await db.collection('moods_dataset').findOne(
       {
         username,
         activity_name: activityName,
       },
     );
 
-    if (!moodDatasetItem) {
+    if (!moodsDatasetItem) {
       await db.collection('moods_dataset')
         .insertOne({
           username,
@@ -17,7 +17,7 @@ const addAndUpdateMoodToDataset = async (db, username, mood, activityName) => {
     } else {
       await db.collection('moods_dataset')
         .updateOne(
-          { _id: moodDatasetItem._id },
+          { _id: moodsDatasetItem._id },
           {
             $set: {
               username,
