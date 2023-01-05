@@ -1,5 +1,11 @@
 const axios = require('axios').default;
 
+const getActivityIcon = async (request, activityName) => {
+  const activity = await request.mongo.db.collection('activities').findOne({ activity_name: activityName });
+
+  return activity.icon;
+};
+
 const getActivities = async (request, h) => {
   const { username } = request.auth.credentials;
   const { recommended } = request.query;
@@ -31,8 +37,9 @@ const getActivities = async (request, h) => {
       );
 
       const activitiesScores = rankingRes.data.predictions;
-      const rankedActivities = activityCandidates.map((activity, index) => ({
+      const rankedActivities = activityCandidates.map(async (activity, index) => ({
         activityName: activity,
+        icon: await getActivityIcon(request, activity),
         scores: activitiesScores[index][0],
       })).sort(
         (a, b) => b.scores - a.scores,
@@ -41,7 +48,7 @@ const getActivities = async (request, h) => {
       response = h.response({
         code: 200,
         status: 'OK',
-        data: rankedActivities,
+        data: await Promise.all(rankedActivities),
       });
 
       response.code(200);
