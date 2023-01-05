@@ -37,18 +37,24 @@ const getActivities = async (request, h) => {
       );
 
       const activitiesScores = rankingRes.data.predictions;
-      const rankedActivities = activityCandidates.map(async (activity, index) => ({
+
+      const rankedActivities = activityCandidates.map((activity, index) => ({
         activityName: activity,
-        icon: await getActivityIcon(request, activity),
-        scores: activitiesScores[index][0],
+        score: activitiesScores[index][0],
       })).sort(
-        (a, b) => b.scores - a.scores,
+        (a, b) => b.score - a.score,
       );
+
+      const rankedActivitiesWithIcon = rankedActivities.map(async (activity) => ({
+        activityName: activity.activityName,
+        icon: await getActivityIcon(request, activity.activityName),
+        score: activity.score,
+      }));
 
       response = h.response({
         code: 200,
         status: 'OK',
-        data: await Promise.all(rankedActivities),
+        data: await Promise.all(rankedActivitiesWithIcon),
       });
 
       response.code(200);
