@@ -13,48 +13,62 @@ const getActivities = async (request, h) => {
 
   try {
     if (recommended === 'true') {
-      // Retrieve activity candidates
-      const retrievalRes = await axios.post(
-        `${process.env.MODEL_BASE_URL}/v1/models/activities_retrieval:predict`,
-        {
-          instances: [`${username}`],
-        },
-      );
+      const moodDatasetItem = await request.mongo.db.collection('moods_dataset').findOne({ username });
 
-      const activityCandidates = retrievalRes.data.predictions[0].output_2;
+      if (moodDatasetItem) {
+        // Retrieve activity candidates
+        const retrievalRes = await axios.post(
+          `${process.env.MODEL_BASE_URL}/v1/models/activities_retrieval:predict`,
+          {
+            instances: [`${username}`],
+          },
+        );
 
-      // Rank the retrieved activity candidates
-      const rankingQuery = activityCandidates.map((activity) => ({
-        username,
-        activity_name: activity,
-      }));
+        const activityCandidates = retrievalRes.data.predictions[0].output_2;
 
-      const rankingRes = await axios.post(
-        `${process.env.MODEL_BASE_URL}/v1/models/activities_ranking:predict`,
-        {
-          instances: rankingQuery,
-        },
-      );
+        // Rank the retrieved activity candidates
+        const rankingQuery = activityCandidates.map((activity) => ({
+          username,
+          activity_name: activity,
+        }));
 
-      const activitiesScores = rankingRes.data.predictions;
+        const rankingRes = await axios.post(
+          `${process.env.MODEL_BASE_URL}/v1/models/activities_ranking:predict`,
+          {
+            instances: rankingQuery,
+          },
+        );
 
-      const rankedActivities = activityCandidates.map((activity, index) => ({
-        activityName: activity,
-        score: activitiesScores[index][0],
-      })).sort(
-        (a, b) => b.score - a.score,
-      );
+        const activitiesScores = rankingRes.data.predictions;
 
-      const rankedActivitiesWithIcon = rankedActivities.map(async (activity) => ({
-        activityName: activity.activityName,
-        icon: await getActivityIcon(request, activity.activityName),
-        score: activity.score,
-      }));
+        const rankedActivities = activityCandidates.map((activity, index) => ({
+          activityName: activity,
+          score: activitiesScores[index][0],
+        })).sort(
+          (a, b) => b.score - a.score,
+        );
+
+        const rankedActivitiesWithIcon = rankedActivities.map(async (activity) => ({
+          activityName: activity.activityName,
+          icon: await getActivityIcon(request, activity.activityName),
+          score: activity.score,
+        }));
+
+        response = h.response({
+          code: 200,
+          status: 'OK',
+          data: await Promise.all(rankedActivitiesWithIcon),
+        });
+
+        response.code(200);
+
+        return response;
+      }
 
       response = h.response({
         code: 200,
         status: 'OK',
-        data: await Promise.all(rankedActivitiesWithIcon),
+        data: [],
       });
 
       response.code(200);
