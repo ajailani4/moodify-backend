@@ -151,13 +151,18 @@ const getMoodDetail = async (request, h) => {
       return response;
     }
 
+    const activity = await request.mongo.db.collection('activities').findOne({ activity_name: mood.activity_name });
+
     response = h.response({
       code: 200,
       status: 'OK',
       data: {
         id: mood._id,
         mood: mood.mood,
-        activityName: mood.activity_name,
+        activity: {
+          activityName: activity.activity_name,
+          icon: activity.icon,
+        },
         note: mood.note,
         date: mood.date,
         time: mood.time,
