@@ -84,6 +84,7 @@ const getActivities = async (request, h) => {
       data: activities.map((activity) => ({
         id: activity._id,
         activityName: activity.activity_name,
+        icon: activity.icon,
       })),
     });
 
